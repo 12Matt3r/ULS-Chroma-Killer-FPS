@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credits - Urban Life Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ff7f00;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .credits-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex: 1;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            max-height: 120px;
+            width: auto;
+            filter: drop-shadow(0 0 20px rgba(255, 127, 0, 0.3));
+        }
+
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(255, 127, 0, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ffa64d;
+            letter-spacing: 2px;
+        }
+
+        .section {
+            background: rgba(255, 127, 0, 0.05);
+            border: 2px solid rgba(255, 127, 0, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 0 30px rgba(255, 127, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ff9500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid rgba(255, 127, 0, 0.5);
+            padding-bottom: 10px;
+        }
+
+        .credits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .credit-item {
+            background: rgba(255, 127, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 127, 0, 0.3);
+        }
+
+        .credit-category {
+            font-weight: bold;
+            color: #ff9500;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .credit-text {
+            color: #ffaa66;
+            line-height: 1.6;
+        }
+
+        .radio-stations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .station-item {
+            background: rgba(255, 127, 0, 0.08);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 127, 0, 0.2);
+            text-align: center;
+        }
+
+        .station-name {
+            font-weight: bold;
+            color: #ff9500;
+            margin-bottom: 8px;
+        }
+
+        .station-link {
+            color: #ffa64d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .station-link:hover {
+            color: #ff7f00;
+            text-decoration: underline;
+        }
+
+        .station-text {
+            color: #cc7733;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .award-logo {
+            display: block;
+            margin: 20px auto;
+            max-height: 80px;
+            opacity: 0.8;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 2px solid rgba(255, 127, 0, 0.3);
+            color: #ffaa66;
+        }
+
+        .version-info {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .logo-container {
+                gap: 20px;
+            }
+            
+            .logo {
+                max-height: 80px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="credits-container">
+        <header class="header-section">
+            <div class="logo-container">
+                <!-- Top three GIFs as requested -->
+                <img src="/IMG_9581.gif" alt="Urban Life Simulator Logo" class="logo">
+                <img src="/IMG_9582.gif" alt="Hailuo AI Logo" class="logo">
+                <img src="/IMG_9583.gif" alt="Chroma Awards Logo" class="logo">
+            </div>
+            <h1 class="main-title">Urban Life Simulator</h1>
+            <p class="subtitle">Credits & Acknowledgments</p>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">🏆 Awards Recognition</h2>
+            <img src="/IMG_9583.gif" alt="Chroma Awards Logo" class="award-logo">
+            <div class="credits-grid">
+                <div class="credit-item">
+                    <div class="credit-category">Film • Music • Games</div>
+                    <div class="credit-text">
+                        Special recognition to Chroma Awards for supporting innovative digital experiences and creative technology projects.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">Awards Excellence</div>
+                    <div class="credit-text">
+                        Celebrating the intersection of technology, art, and interactive storytelling in the digital entertainment space.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: Final Credits and Acknowledgments -->
+        <section class="section">
+            <h2 class="section-title">🌟 Final Credits and Acknowledgments</h2>
+
+            <div class="credit-item" style="margin-bottom: 20px;">
+                <div class="credit-category">A. Official Competition Entry</div>
+                <div class="credit-text">
+                    This project is an official entry for the <strong>Chroma Awards</strong>, a prestigious AI Film, Music Video, and Game competition presented to unite the global creative community. The mission of the Chroma Awards is to educate, empower, and spotlight the next generation of creatives.
+                    <br><br>
+                    <strong>Event Link:</strong>
+                    <a href="https://chromaawards.com/" target="_blank" style="color:#ffa64d; text-decoration:none;">https://chromaawards.com/</a>
+                </div>
+            </div>
+
+            <div class="credit-item">
+                <div class="credit-category">B. Generative AI Toolkit &amp; Platform Credits</div>
+                <div class="credit-text">
+                    This game was developed using a comprehensive suite of AI tools and platforms, leveraging emerging technology for rapid prototyping, content generation, and system design.
+                </div>
+                <div style="overflow-x:auto; margin-top:15px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                        <thead>
+                            <tr>
+                                <th style="border-bottom:1px solid rgba(255,127,0,0.3); padding:8px; text-align:left;">Tool / Platform</th>
+                                <th style="border-bottom:1px solid rgba(255,127,0,0.3); padding:8px; text-align:left;">Primary Use in Development</th>
+                                <th style="border-bottom:1px solid rgba(255,127,0,0.3); padding:8px; text-align:left;">Link to Learn More</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Google Gemini</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Core AI Assistant for writing, brainstorming, summarization, and overall project guidance.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://gemini.google/about/" target="_blank" style="color:#ffa64d;">https://gemini.google/about/</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>ChatGPT</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Generative code for simple tasks, content creation, logical deduction, and code debugging/refactoring.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://openai.com/chatgpt" target="_blank" style="color:#ffa64d;">https://openai.com/chatgpt</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Websim</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Versatile platform used for rapid prototyping, visualization, and creative manipulation of URLs and content.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://www.websim.ai" target="_blank" style="color:#ffa64d;">https://www.websim.ai</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Google Jules</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Agentic, asynchronous coding assistant used for refactoring, building features, and handling complex, multi-step changes within the codebase.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://cloud.google.com/jules" target="_blank" style="color:#ffa64d;">https://cloud.google.com/jules</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Meshy</strong></td>
+                                <td style="padding:8px; vertical-align:top;">3D asset generation, converting text-to-3D models, Text to Texture for existing models, and animation/rigging solutions.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://www.meshy.ai/" target="_blank" style="color:#ffa64d;">https://www.meshy.ai/</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Glif.app</strong></td>
+                                <td style="padding:8px; vertical-align:top;">AI art platform/workflow builder used for generating custom visual assets and creative content compositions.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://www.glif.app/" target="_blank" style="color:#ffa64d;">https://www.glif.app/</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Kling AI</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Generative model utilized for Text-to-Video and Image-to-Video generation, potentially for cinematic sequences or promotional assets.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://kling.ai" target="_blank" style="color:#ffa64d;">https://kling.ai</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Veo 3</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Advanced video generation model used for high-quality, realistic video clips with native audio generation and precise creative controls.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://aistudio.google.com/models/veo-3" target="_blank" style="color:#ffa64d;">https://aistudio.google.com/models/veo-3</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Perplexity Comet Agent</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Browser-based AI agent used for real-time research, web navigation, context extraction, and task automation during development.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://www.perplexity.ai/comet" target="_blank" style="color:#ffa64d;">https://www.perplexity.ai/comet</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Hailuo AI</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Advanced AI platform used to enhance creative workflows, offering tools for content generation, editing, and refining digital assets.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://www.hailuoai.video/" target="_blank" style="color:#ffa64d;">https://www.hailuoai.video/</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Minimax AI Agent</strong></td>
+                                <td style="padding:8px; vertical-align:top;">Multi-agent collaboration protocol (MCP) used for complex workflow coordination, voice interaction, and code generation.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://agent.minimax.io/" target="_blank" style="color:#ffa64d;">https://agent.minimax.io/</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; vertical-align:top;"><strong>Google Whisk</strong></td>
+                                <td style="padding:8px; vertical-align:top;">AI-powered organizational tool used to manage and customize large volumes of internal documentation or planning data.</td>
+                                <td style="padding:8px; vertical-align:top;"><a href="https://www.whiskapp.com/" target="_blank" style="color:#ffa64d;">https://www.whiskapp.com/</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">🤖 AI & Technology Partners</h2>
+            <div class="credits-grid">
+                <div class="credit-item">
+                    <div class="credit-category">Hailuo AI</div>
+                    <div class="credit-text">
+                        Advanced artificial intelligence platform providing the intelligent narrative generation system that powers the immersive storytelling experience in Urban Life Simulator.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">WebSim API</div>
+                    <div class="credit-text">
+                        Innovative web simulation platform enabling dynamic content generation and interactive narrative experiences.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Updated radio/music credits: single Suno profile + artist image -->
+        <section class="section">
+            <h2 class="section-title">📻 Radio Station Partners</h2>
+            <div class="credit-text" style="margin-bottom: 20px; display:flex; flex-wrap:wrap; align-items:center; gap:20px;">
+                <img src="/IMG_8774.png" alt="shmorez artist portrait" style="max-height:140px; border-radius:8px; box-shadow:0 0 20px rgba(255,127,0,0.4); flex-shrink:0;">
+                <div>
+                    All featured “radio” and in-game music experiences in Urban Life Simulator are powered by
+                    original tracks created on <strong>Suno</strong> by the artist <strong>shmorez</strong>.<br><br>
+                    Discover more music and follow shmorez here:<br>
+                    <a href="https://suno.com/@shmorez"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       style="color:#ffa64d; text-decoration:none; word-break:break-all;">
+                        https://suno.com/@shmorez
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Music section explicitly credits Suno / shmorez -->
+        <section class="section">
+            <h2 class="section-title">🎵 Music Production</h2>
+            <div class="credits-grid">
+                <div class="credit-item">
+                    <div class="credit-category">Original In-Game Music</div>
+                    <div class="credit-text">
+                        All in-game music for Urban Life Simulator was created using
+                        <strong>Suno</strong> by the artist <strong>shmorez</strong>.
+                        You can explore more of their work and follow them here:<br><br>
+                        <a href="https://suno.com/@shmorez" target="_blank" rel="noopener noreferrer" style="color:#ffa64d; text-decoration:none;">
+                            https://suno.com/@shmorez
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">🔧 Technical Foundation</h2>
+            <div class="credits-grid">
+                <div class="credit-item">
+                    <div class="credit-category">Three.js</div>
+                    <div class="credit-text">
+                        3D graphics library powering the immersive 3D environments and visual effects system.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">Web Audio API</div>
+                    <div class="credit-text">
+                        Advanced audio processing and spatial sound rendering for the radio system and environmental audio.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">WebGL</div>
+                    <div class="credit-text">
+                        Hardware-accelerated graphics rendering enabling smooth 3D environments and CRT shader effects.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">WebGL Shaders</div>
+                    <div class="credit-text">
+                        Custom shader effects including CRT screen simulation, scanlines, and atmospheric lighting.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">🎮 Core Development</h2>
+            <div class="credits-grid">
+                <div class="credit-item">
+                    <div class="credit-category">Urban Life Simulator Engine</div>
+                    <div class="credit-text">
+                        Advanced simulation engine featuring stats tracking, wanted level system, multi-realm navigation, and dynamic narrative generation.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">VAPOR Engine Heritage</div>
+                    <div class="credit-text">
+                        Built upon the innovative VAPOR AI Adventure System architecture, adapted and enhanced for urban life simulation gameplay.
+                    </div>
+                </div>
+                <div class="credit-item">
+                    <div class="credit-category">Responsive Design</div>
+                    <div class="credit-text">
+                        Optimized for desktop, tablet, and mobile devices with adaptive touch controls and responsive UI layouts.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: Detailed Game Description & Tutorial -->
+        <section class="section">
+            <h2 class="section-title">📘 Credits / Tutorial – How Urban Life Simulator Works</h2>
+            <div class="credits-grid">
+                <div class="credit-item">
+                    <div class="credit-category">1. What This Game Is</div>
+                    <div class="credit-text">
+                        <strong>Urban Life Simulator</strong> is a hybrid <em>city-life sandbox</em> and <em>survival combat experience</em> set inside a moody, AI‑assisted neon city.  
+                        You spawn in the middle of an abstract metropolis that’s built from:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li><strong>Procedural buildings</strong> (generated towers, windows, rooftops, props).</li>
+                            <li><strong>Road networks</strong> with sidewalks, parked cars, and streetlights that turn on at night.</li>
+                            <li><strong>Dynamic sky</strong> with a VHS‑style glitch dome and an eerie “sky eye” model watching the city.</li>
+                        </ul>
+                        Your job is to:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Keep your <strong>Health, Hunger, and Energy</strong> in balance.</li>
+                            <li>Travel between <strong>districts</strong> using fast travel markers.</li>
+                            <li>Collect and use <strong>items &amp; power‑ups</strong>.</li>
+                            <li>Opt into <strong>Survival Mode</strong> waves to fight enemies, earn money, and upgrade your weapon.</li>
+                            <li>Occasionally step into <strong>Living Hell Mode</strong>, a reality‑TV‑style decision layer that can bless or curse your run.</li>
+                        </ul>
+                        The experience is intentionally arcade‑like and experimental: it’s part city walking sim, part wave shooter, part interactive AI playground.
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">2. How The Simulation Works Under the Hood</div>
+                    <div class="credit-text">
+                        Underneath the stylized CRT UI, Urban Life Simulator is driven by a custom “VAPOR‑inspired” engine built on modern web tech:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li><strong>three.js + WebGL</strong> for real‑time 3D rendering of buildings, lights, props, enemies, and projectiles.</li>
+                            <li><strong>Procedural city generation</strong> creates roads, sidewalks, towers, rooftop details, windows, and props every time the world loads.</li>
+                            <li><strong>Day / Night cycle</strong> advances minute‑by‑minute in simulation time; the sun and moon move, fog shifts, windows glow at night, and streetlights gradually power on.</li>
+                            <li><strong>Weather system</strong> occasionally kicks off thunderstorms, complete with rain overlay, lightning flashes, and procedural thunder audio generated with the Web Audio API.</li>
+                            <li><strong>Stats engine</strong> continuously updates Health, Hunger, Energy, Money, Score, and Combo, and pushes those values into the HUD.</li>
+                            <li><strong>Audio system</strong> uses sound effects (gunshots, hits, item use) plus a lightweight in‑game music player cycling through tracks created by <strong>shmorez</strong> on <strong>Suno</strong>.</li>
+                            <li><strong>Enemy &amp; projectile logic</strong> manages enemy spawns, movement, shooting, and collision detection against the player, buildings, and bullets.</li>
+                            <li><strong>Living Hell Mode layer</strong> watches your <em>location</em> and overrides the experience with a separate, narrative‑driven overlay when you enter special zones like “The Living Hell House”.</li>
+                        </ul>
+                        All of this runs directly in the browser with no install required – the game is a single‑page WebGL application controlled by JavaScript systems talking to the DOM‑based HUD.
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">3. Core Stats &amp; What They Mean</div>
+                    <div class="credit-text">
+                        In the top‑left HUD you will see:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li><strong>HEALTH</strong> – If this hits 0, you die and get a Game Over. You can restore health with <em>Water Bottles</em>, <em>Health Cores</em>, and certain Living Hell choices.</li>
+                            <li><strong>HUNGER</strong> – Gradually drains over time. If it drops too low, you start taking extra damage and move slower. Refill with <em>Food Cans</em> and <em>Ration‑style power‑ups</em>.</li>
+                            <li><strong>ENERGY</strong> – Represents stamina/fatigue. Low energy makes combat and movement feel more punishing. Refill with <em>Energy Drinks</em> and special power‑ups.</li>
+                            <li><strong>MONEY</strong> – Used to upgrade your gun at terminals (fast travel locations). You earn big payouts by clearing boss waves in Survival Mode.</li>
+                            <li><strong>CREDITS</strong> – A quick link to this Credits / Tutorial page so you can always come back here while the game is open.</li>
+                        </ul>
+                        The simulation constantly ticks these values up/down:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Hunger and Energy slowly <strong>decay</strong> over time.</li>
+                            <li>Very low Hunger makes incoming damage <strong>hurt more</strong>.</li>
+                            <li>Some power‑ups temporarily <strong>boost movement speed</strong>, giving you a window to reposition or kite enemies.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">4. How to Move, Look, and Interact</div>
+                    <div class="credit-text">
+                        <strong>On Desktop:</strong>
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li><strong>W / A / S / D</strong> – Move forward, left, backward, right.</li>
+                            <li><strong>Mouse</strong> – Look around. The first click locks the pointer; afterwards, clicking fires your weapon.</li>
+                            <li><strong>SPACE</strong> – Jump.</li>
+                            <li><strong>E</strong> – Interact with nearby locations (fast travel terminals) when you’re close enough.</li>
+                            <li><strong>M</strong> – Open / close the <strong>Fast Travel</strong> menu.</li>
+                            <li><strong>I</strong> – Open / close your <strong>Inventory</strong>.</li>
+                            <li><strong>G</strong> – Toggle <strong>Survival Mode</strong> (or use the Start Wave button in the Fast Travel terminal).</li>
+                            <li><strong>F</strong> – Enter/exit vehicle (currently a stub for future vehicle systems).</li>
+                        </ul>
+                        <strong>On Mobile:</strong>
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>A <strong>virtual joystick</strong> appears on the bottom‑left of the screen for movement.</li>
+                            <li>Drag on the <strong>right side</strong> of the screen to look around.</li>
+                            <li>Use the three <strong>action buttons</strong> on the bottom‑right:
+                                <ul style="margin-top:4px; padding-left:18px;">
+                                    <li><strong>USE</strong> – Interact (same as E).</li>
+                                    <li><strong>FIRE</strong> – Shoot your weapon.</li>
+                                    <li><strong>JUMP</strong> – Jump.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        In both cases, the crosshair in the center is your aiming point, and the hit‑marker box flashes when you land hits or impacts.
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">5. Items, Power‑Ups, and Inventory</div>
+                    <div class="credit-text">
+                        The city is scattered with hovering <strong>power‑up orbs</strong> and collectible items:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li><strong>Health Core / Water Bottle</strong> – Restores Health (and sometimes a little Hunger).</li>
+                            <li><strong>Energy Surge / Energy Drink</strong> – Restores Energy and can trigger a brief <strong>speed boost</strong> for movement.</li>
+                            <li><strong>Ration Cache / Food Can</strong> – Restores Hunger, slowing down your starvation penalty.</li>
+                        </ul>
+                        Picking up items works in two ways:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li><strong>World power‑ups</strong> – Simply walk through them; they auto‑apply and show a floating number over the HUD (e.g. +35 HEALTH).</li>
+                            <li><strong>Inventory items</strong> – Some items are stored in your inventory UI. Open it with <strong>I</strong> (desktop) or the Inventory button, then tap/click an item to consume it.</li>
+                        </ul>
+                        When you use an item, the game:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Modifies the relevant stat(s).</li>
+                            <li>Plays a <strong>use_item</strong> sound effect.</li>
+                            <li>Updates the HUD and displays a small floating stat change tag (e.g. +40 ENERGY).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">6. Fast Travel, Terminals, and Gun Upgrades</div>
+                    <div class="credit-text">
+                        Across the map you’ll see glowing <strong>orange cylinders</strong> and lights – these are <strong>location markers</strong> for Fast Travel:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Move near a marker until its name appears in the HUD (“Downtown”, “The Docks”, “The Living Hell House”, etc.).</li>
+                            <li>Press <strong>E</strong> (or USE on mobile) to interact, or press <strong>M</strong> to open the Fast Travel menu.</li>
+                        </ul>
+                        Inside the Fast Travel menu you’ll find:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>A list of unlocked <strong>locations</strong> you can instantly teleport to.</li>
+                            <li>The <strong>Combat Services Terminal</strong>, which includes:
+                                <ul style="margin-top:4px; padding-left:18px;">
+                                    <li><strong>UPGRADE GUN</strong> button.</li>
+                                    <li><strong>START WAVE</strong> button for Survival Mode.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <strong>Gun Upgrades:</strong>
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Each level increases your gun’s <strong>damage multiplier</strong>.</li>
+                            <li>The upgrade cost grows exponentially (the UI shows “GUN LVL X • UPGRADE: $Y”).</li>
+                            <li>You can only upgrade when you are <strong>near a fast travel portal</strong> (this simulates visiting an in‑world armory).</li>
+                            <li>Most of your money comes from clearing <strong>boss waves</strong> in Survival Mode – these are tuned to pay out exactly the right amount to afford further upgrades.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">7. Survival Mode – Waves, Bosses, and Scoring</div>
+                    <div class="credit-text">
+                        <strong>Survival Mode</strong> is your combat playground:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Activate it with <strong>G</strong> on desktop or the <strong>START WAVE</strong> button in the Fast Travel / Combat Services panel.</li>
+                            <li>The game spawns enemies in a ring around you at the edge of the city, using a mix of pixel art enemies and GIFs.</li>
+                            <li>Every few waves (e.g. every 5th) becomes a <strong>Boss Wave</strong> that uses a special 3D boss model.</li>
+                        </ul>
+                        Enemies:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Billboard towards you (always facing the camera so you can see their sprites clearly).</li>
+                            <li>Walk toward you and, once in range, start <strong>shooting projectiles</strong>.</li>
+                            <li>Their health, fire rate, and projectile damage scale up with each wave.</li>
+                        </ul>
+                        Projectiles:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Your bullets are fast, yellow streaks affected by gravity unless you’ve earned the “no bullet drop” modifier.</li>
+                            <li>Enemy bullets are red orbs that can be blocked by buildings, letting you <strong>use the city as cover</strong>.</li>
+                        </ul>
+                        Scoring and Rewards:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>You earn <strong>score</strong> for each kill, with extra for bosses.</li>
+                            <li>A <strong>combo system</strong> increases your score if you keep killing enemies quickly without long gaps.</li>
+                            <li>Boss waves pay out <strong>large money bonuses</strong> designed to match future gun upgrade costs.</li>
+                            <li>When you die, you see a <strong>Progress Code</strong> that encodes your current weapon level – in a future version this can be used to restore progress across runs.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">8. Living Hell Mode – The Reality TV Layer</div>
+                    <div class="credit-text">
+                        <strong>Living Hell Mode</strong> is a narrative overlay that occasionally takes over the UI:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Travel to special zones like <strong>“The Living Hell House”</strong>, <strong>“The Tank”</strong>, or <strong>“Fishtank Address”</strong>.</li>
+                            <li>When you arrive, the game fades into a red‑themed interface with “House Heat” and “Viewer Count” – like a cursed reality TV show.</li>
+                            <li>You’re presented with narrative text, an audience vote, and a set of <strong>choices</strong>:
+                                <ul style="margin-top:4px; padding-left:18px;">
+                                    <li>Some choices are labeled <strong>THE GIFT</strong> and give buffs (no bullet drop, health boosts, etc.).</li>
+                                    <li>Others are <strong>THE CURSE</strong> and apply debuffs (stronger enemies, health penalties, etc.).</li>
+                                </ul>
+                            </li>
+                            <li>You get <strong>one vote per round</strong>; once you choose, the other options lock and the effect is applied to your normal game state.</li>
+                        </ul>
+                        Technically, this system:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Tracks a <strong>turn counter</strong>, heat level, and viewer count for flavor.</li>
+                            <li>Applies modifiers directly to the main game (e.g. flags that adjust bullet physics or enemy behavior).</li>
+                            <li>Then hands you back to normal gameplay with your new buffs or curses still active.</li>
+                        </ul>
+                        You can try to exit Living Hell Mode by using the “Exit” choice in the overlay if you want to get back to regular street life.
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">9. How to Survive and “Win”</div>
+                    <div class="credit-text">
+                        There is no traditional <em>final boss</em> or credits roll yet – the game is designed as an open‑ended survival loop.  
+                        Your personal “win conditions” can be:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>Reaching a <strong>high wave number</strong> in Survival Mode without dying.</li>
+                            <li>Unlocking a <strong>high weapon level</strong> through repeated boss clears.</li>
+                            <li>Maintaining balanced <strong>Health / Hunger / Energy</strong> through smart item use and routing.</li>
+                            <li>Exploring the city’s <strong>locations</strong> and experiencing multiple Living Hell vote outcomes.</li>
+                        </ul>
+                        If you die, don’t worry:
+                        <ul style="margin-top:8px; padding-left:18px;">
+                            <li>You’ll see your <strong>score</strong> and a generated <strong>Progress Code</strong>.</li>
+                            <li>Refresh the page to restart with a clean world and everything re‑initialized.</li>
+                            <li>Each run is a chance to push deeper, upgrade smarter, and experiment with different choices.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="credit-item">
+                    <div class="credit-category">10. Quick “How to Play” Summary</div>
+                    <div class="credit-text">
+                        If you want the fastest possible overview:
+                        <ol style="margin-top:8px; padding-left:18px;">
+                            <li><strong>Move around</strong> with WASD (or joystick on mobile) and look with the mouse/touch.</li>
+                            <li><strong>Watch your HUD</strong>: keep Health, Hunger, and Energy from bottoming out.</li>
+                            <li><strong>Grab glowing power‑ups</strong> in the streets to restore stats and get speed boosts.</li>
+                            <li><strong>Use Fast Travel markers</strong> to jump between locations and access the Combat Services terminal.</li>
+                            <li><strong>Start Survival Waves</strong> from the terminal, fight enemies, and use buildings as cover.</li>
+                            <li><strong>Earn money</strong> from boss waves and spend it on <strong>gun upgrades</strong>.</li>
+                            <li><strong>Visit Living Hell zones</strong> if you want high‑risk, high‑reward modifiers through audience‑style votes.</li>
+                            <li><strong>When you die</strong>, note your Progress Code, refresh the page, and try another run.</li>
+                        </ol>
+                        Have fun exploring the city, experimenting with builds, and turning this glitchy neon world into your own personal survival story.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="version-info">Urban Life Simulator v1.0</div>
+            <div class="copyright">
+                © 2025 MiniMax Agent. All rights reserved.<br>
+                Inspired by the VAPOR AI Adventure System<br>
+                Built with passion for immersive urban experiences
+            </div>
+        </footer>
+    </div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9a0477d1e959bd00","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.9.1","token":"e72945439c264b3b85d2e3b689102d27"}' crossorigin="anonymous"></script>
+</body>
+</html>

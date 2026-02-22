@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Life Simulator - VAPOR Engine Transformation</title>
+    
+    <!-- Meta tags for mobile optimization -->
+    <meta name="description" content="Urban Life Simulator - Experience city life in a dynamic, AI-powered 3D environment">
+    <meta name="keywords" content="urban life, simulation, city, 3D, interactive, AI">
+    <meta name="author" content="MiniMax Agent">
+    
+    <!-- Favicon and mobile optimization -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjYgNkwyNiAxMEwyNCAyMEwyMiAyOEwyMCAzMkgyMlYyOEwyMCAyNkwyMCAyNEwyMCAyMkwyMCAyMEwyMCAxOEwyMCAxNkwyMCAxNEwyMCAxMkwyMCAxMEwyMCA4TDI0IDZIMjZaIiBmaWxsPSIjZmY2YjM1Ii8+CiAgPHBhdGggZD0iTTggNkwxMCAxMEwxMiAyMEwxNCAyOEwxNiAzMkgxNFYyOEwxNiAyNkwyMCAyNEwyMCAyMkwyMCAyMEwyMCAxOEwyMCAxNkwyMCAxNEwyMCAxMkwxMCA4TDggNloiIGZpbGw9IiNmZmFhNDQiLz4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSI4IiBzdHJva2U9IiNmZmFhNDQiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4K">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="urban-life-simulator.css" as="style">
+    <link rel="preload" href="urban-life-simulator.js" as="script">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="urban-life-simulator.css">
+    
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; img-src 'self' data: https: blob:; media-src 'self' https: blob:; connect-src 'self' https:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+</head>
+<body>
+    <!-- Main panorama container -->
+    <div id="panorama-container"></div>
+    
+    <!-- Language selection -->
+    <select id="language-select" style="position: fixed; top: 10px; right: 10px; z-index: 25;">
+        <option value="en">🇺🇸 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="pt">🇵🇹 Português</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="zh">🇨🇳 中文</option>
+    </select>
+    
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div id="location-info">
+            <div id="location-title">Loading Urban Life...</div>
+            <div id="character-thoughts">Initializing character consciousness...</div>
+        </div>
+    </div>
+    
+    <!-- Eye mask for blink transitions -->
+    <div id="eye-mask">
+        <!-- Eye shapes for blink animation -->
+        <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0;">
+            <!-- Left eye -->
+            <ellipse class="eye-shape top-lid" cx="25%" cy="30%" rx="15%" ry="10%" fill="black"/>
+            <ellipse class="eye-shape bottom-lid" cx="25%" cy="30%" rx="15%" ry="10%" fill="black"/>
+            
+            <!-- Right eye -->
+            <ellipse class="eye-shape top-lid" cx="75%" cy="30%" rx="15%" ry="10%" fill="black"/>
+            <ellipse class="eye-shape bottom-lid" cx="75%" cy="30%" rx="15%" ry="10%" fill="black"/>
+        </svg>
+    </div>
+    
+    <!-- Inspired by section -->
+    <div id="inspired-by">
+        <a href="#" target="_blank">ULS</a>
+    </div>
+    
+    <!-- Loading splash screen -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h2>URBAN LIFE SIMULATOR</h2>
+            <div class="splash-text">
+                <p>🌃 VAPOR Engine Transformation</p>
+                <p>🎮 AI-Powered City Exploration</p>
+                <p>🏙️ Multi-Realm Urban Adventure</p>
+                <p style="margin-top: 20px; opacity: 0.6;">Initializing systems...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Main ULS Application -->
+    <script src="urban-life-simulator.js"></script>
+    
+    <!-- Living Hell Module - Narrative Override System -->
+    <script src="living-hell-module.js"></script>
+    
+    <!-- Application initialization and error handling -->
+    <script>
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            showErrorMessage('An error occurred. Please refresh the page.');
+        });
+        
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+            const reason = event.reason;
+            const msg = (reason && (reason.message || reason.toString && reason.toString())) || '';
+            
+            // Quietly ignore lock-exit related rejections so they don’t spam or break the game.
+            if (msg && msg.toLowerCase().includes('exited the lock')) {
+                console.warn('Ignoring early lock exit rejection (ULS shell):', reason);
+                event.preventDefault();
+                return;
+            }
+            
+            console.error('Unhandled promise rejection:', reason);
+            event.preventDefault(); // Prevent console error
+        });
+        
+        // Error message display
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: rgba(255, 0, 0, 0.9); color: white; padding: 20px;
+                border-radius: 10px; font-family: VT323; font-size: 20px;
+                z-index: 10000; text-align: center; max-width: 400px;
+            `;
+            errorDiv.innerHTML = `
+                <div>⚠️ Error</div>
+                <div style="margin-top: 10px;">${message}</div>
+                <button onclick="location.reload()" style="
+                    margin-top: 15px; padding: 10px 20px; 
+                    background: rgba(255, 255, 255, 0.2); 
+                    border: 1px solid white; color: white;
+                    font-family: VT323; cursor: pointer;
+                ">Reload Page</button>
+            `;
+            document.body.appendChild(errorDiv);
+        }
+        
+        // Check for required browser features
+        function checkBrowserSupport() {
+            const requiredFeatures = [
+                'WebGLRenderingContext',
+                'AudioContext',
+                'Promise',
+                'fetch'
+            ];
+            
+            const missingFeatures = requiredFeatures.filter(feature => 
+                !(feature in window)
+            );
+            
+            if (missingFeatures.length > 0) {
+                showErrorMessage(`Your browser doesn't support required features: ${missingFeatures.join(', ')}`);
+                return false;
+            }
+            
+            // Check WebGL support
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) {
+                showErrorMessage('WebGL is not supported. Please use a modern browser.');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Initialize application
+        function initializeULS() {
+            // Hide splash screen after a delay
+            setTimeout(() => {
+                const splashScreen = document.getElementById('splash-screen');
+                if (splashScreen) {
+                    splashScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        splashScreen.style.display = 'none';
+                    }, 1000);
+                }
+            }, 3000);
+            
+            // Add loading progress indicator
+            const loadingIndicators = [
+                'Initializing 3D engine...',
+                'Loading urban landscapes...',
+                'Syncing with city networks...',
+                'Character consciousness online...',
+                'Welcome to the city.'
+            ];
+            
+            let indicatorIndex = 0;
+            const splashText = document.querySelector('.splash-text p:last-child');
+            
+            if (splashText) {
+                const loadingInterval = setInterval(() => {
+                    if (indicatorIndex < loadingIndicators.length) {
+                        splashText.textContent = loadingIndicators[indicatorIndex];
+                        indicatorIndex++;
+                    } else {
+                        clearInterval(loadingInterval);
+                    }
+                }, 500);
+            }
+        }
+        
+        // Event listeners for global interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check browser support first
+            if (!checkBrowserSupport()) {
+                return;
+            }
+            
+            // Initialize ULS
+            initializeULS();
+            
+            // Global keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // F11 - Fullscreen toggle
+                if (e.key === 'F11') {
+                    e.preventDefault();
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                }
+                
+                // F12 - Developer tools toggle
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    console.log('ULS Debug Info:', {
+                        stats: window.uls?.stats,
+                        wantedLevel: window.uls?.wantedSystem,
+                        currentLocation: window.uls?.currentLocation,
+                        timeOfDay: window.uls?.timeOfDay,
+                        weather: window.uls?.weather
+                    });
+                }
+            });
+            
+            // Prevent context menu on right-click for immersion
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.id === 'panorama-container') {
+                    e.preventDefault();
+                }
+            });
+            
+            // Add touch gestures for mobile
+            let touchStartX = 0;
+            let touchStartY = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function(e) {
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                
+                const deltaX = touchEndX - touchStartX;
+                const deltaY = touchEndY - touchStartY;
+                
+                // Detect swipe gestures
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (Math.abs(deltaX) > 50) { // Minimum swipe distance
+                        if (window.uls) {
+                            if (deltaX > 0) {
+                                // Swipe right
+                                console.log('Swipe right detected');
+                            } else {
+                                // Swipe left
+                                console.log('Swipe left detected');
+                            }
+                        }
+                    }
+                }
+            }, { passive: true });
+            
+            // Performance monitoring
+            let lastFrameTime = performance.now();
+            let frameCount = 0;
+            let fps = 0;
+            
+            function measureFPS() {
+                frameCount++;
+                const currentTime = performance.now();
+                
+                if (currentTime - lastFrameTime >= 1000) {
+                    fps = Math.round((frameCount * 1000) / (currentTime - lastFrameTime));
+                    frameCount = 0;
+                    lastFrameTime = currentTime;
+                    
+                    // Log FPS if it's too low
+                    if (fps < 30) {
+                        console.warn(`Low FPS detected: ${fps}`);
+                    }
+                }
+                
+                requestAnimationFrame(measureFPS);
+            }
+            
+            measureFPS();
+            
+            // Console welcome message
+            console.log('%c🌃 Urban Life Simulator Initialized', 'color: #ff6b35; font-size: 16px; font-weight: bold;');
+            console.log('%cVAPOR Engine Transformation Complete', 'color: #ffaa44; font-size: 12px;');
+            console.log('%cPress F12 for debug information', 'color: #cccccc; font-size: 10px;');
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (window.uls) {
+                // Clean up audio context
+                if (window.uls.audioContext) {
+                    window.uls.audioContext.close();
+                }
+            }
+        });
+    </script>
+    
+    <!-- Analytics (placeholder for future implementation) -->
+    <script>
+        // Placeholder for analytics integration
+        // This could be used for user behavior tracking, performance monitoring, etc.
+        window.ULSAnalytics = {
+            trackEvent: function(category, action, label) {
+                console.log('Analytics:', { category, action, label });
+                // Integration point for Google Analytics, Mixpanel, etc.
+            },
+            trackPerformance: function(metric, value) {
+                console.log('Performance:', { metric, value });
+                // Integration point for performance monitoring
+            }
+        };
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9a0475d9cc42bd00","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.9.1","token":"e72945439c264b3b85d2e3b689102d27"}' crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Urban Life Simulator</title>
+    <link rel="stylesheet" href="urban-life-simulator.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Status UI -->
+        <div id="status-ui" class="ui-panel">
+            <div class="scanlines"></div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">HEALTH</span>
+                    <div class="stat-bar">
+                        <div id="health-bar" class="stat-fill"></div>
+                    </div>
+                    <span id="health-value" class="stat-value">100</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">HUNGER</span>
+                    <div class="stat-bar">
+                        <div id="hunger-bar" class="stat-fill"></div>
+                    </div>
+                    <span id="hunger-value" class="stat-value">100</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">ENERGY</span>
+                    <div class="stat-bar">
+                        <div id="energy-bar" class="stat-fill"></div>
+                    </div>
+                    <span id="energy-value" class="stat-value">100</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">MONEY</span>
+                    <span id="money-value" class="stat-value">$500</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">CREDITS</span>
+                    <a id="credits-button" href="credits.html" target="_blank" rel="noopener noreferrer" class="stat-value credits-link">
+                        VIEW
+                    </a>
+                </div>
+            </div>
+            <div id="time-display" class="time-display">12:00 PM</div>
+            <div id="location-display" class="location-display">Downtown</div>
+        </div>
+        
+        <!-- Survival Mode UI -->
+        <div id="crosshair">+</div>
+        <div id="hit-marker"></div>
+        
+        <!-- Overseer Vote UI -->
+        <div id="overseer-vote-container" class="ui-panel" style="display: none;">
+            <div id="overseer-title" class="survival-text">OVERSEER VOTE</div>
+            <div id="overseer-timer" class="survival-text">20</div>
+            <div id="overseer-options">
+                <div id="vote-option-a" class="vote-option">
+                    <div class="vote-option-title">A: THE GIFT</div>
+                    <div class="vote-option-desc">Stabilized Ammo Cache</div>
+                </div>
+                <div id="vote-option-b" class="vote-option">
+                    <div class="vote-option-title">B: THE CURSE</div>
+                    <div class="vote-option-desc">Systemic Drift</div>
+                </div>
+            </div>
+        </div>
+        <div id="overseer-result-container" class="ui-panel" style="display: none;">
+            <div id="overseer-result-text" class="survival-text">RESULT: SYSTEMIC DRIFT ACTIVATED</div>
+        </div>
+        <div id="screen-distortion-effect"></div>
+        <div id="rain-overlay"></div>
+        
+        <!-- Simple Music Controls -->
+        <div id="music-controls" class="ui-panel">
+            <div class="music-title">MUSIC</div>
+            <div class="music-track" id="music-track-name">--</div>
+            <div class="music-buttons">
+                <button id="music-toggle" type="button">⏯</button>
+                <button id="music-skip" type="button">⏭</button>
+                <button id="music-vol-down" type="button">🔉-</button>
+                <button id="music-vol-up" type="button">🔊+</button>
+            </div>
+        </div>
+        
+        <!-- Living Hell UI Overlay -->
+        <div id="living-hell-overlay" style="display: none;">
+            <div class="hell-header">
+                <h1>🔥 LIVING HELL MODE 🔥</h1>
+                <div class="hell-stats">
+                    <span>HEAT: <span id="house-heat">0</span>%</span>
+                    <span>VIEWERS: <span id="viewer-count">0</span></span>
+                </div>
+            </div>
+            <div id="hell-narrative" class="hell-narrative"></div>
+            <div id="hell-choices" class="hell-choices"></div>
+        </div>
+        
+        <!-- Mobile Controls -->
+        <div id="mobile-controls" class="mobile-controls">
+            <div id="joystick-zone"></div>
+            <div class="action-buttons">
+                <button id="interact-btn" class="action-btn">USE</button>
+                <button id="fire-btn" class="action-btn">FIRE</button>
+                <button id="jump-btn" class="action-btn">JUMP</button>
+            </div>
+        </div>
+        
+        <!-- Fast Travel Menu -->
+        <div id="fast-travel-menu" class="menu-panel" style="display: none;">
+            <h2>FAST TRAVEL</h2>
+            <div id="location-list"></div>
+            <div id="fast-travel-actions">
+                <h3 style="text-align:center; margin-top:10px; margin-bottom:6px; font-family:'VT323', monospace; color:#ff9d4d;">
+                    TERMINAL: COMBAT SERVICES
+                </h3>
+                <div id="gun-upgrade-info"></div>
+                <button id="gun-upgrade-btn" type="button">UPGRADE GUN</button>
+                <button id="start-wave-btn" type="button">START WAVE</button>
+            </div>
+            <button id="close-travel">CANCEL</button>
+        </div>
+        
+        <!-- Inventory Menu -->
+        <div id="inventory-menu" class="menu-panel" style="display: none;">
+            <h2>INVENTORY</h2>
+            <div id="inventory-list"></div>
+            <button id="close-inventory">CLOSE</button>
+        </div>
+        
+        <!-- Loading Screen -->
+        <div id="loading-screen">
+            <div class="loading-content">
+                <h1>URBAN LIFE SIMULATOR</h1>
+                <img src="/IMG_8481 (1).png" alt="Urban Life Emblem" class="uls-badge-logo">
+                <img src="/IMG_8482.png" alt="Chroma Awards Logo" class="chroma-awards-logo">
+                <div class="loading-bar">
+                    <div id="loading-progress"></div>
+                </div>
+                <p id="loading-text">Initializing...</p>
+            </div>
+        </div>
+
+        <!-- Tutorial ticker -->
+        <div id="tutorial-ticker" class="tutorial-ticker"></div>
+    </div>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/",
+            "nipplejs": "https://esm.sh/nipplejs@0.10.1"
+        }
+    }
+    </script>
+    <script type="module" src="urban-life-simulator.js"></script>
+    <script>
+      // Simple service worker to enable cross-origin isolation for shared array buffer if needed in future
+      if (typeof SharedArrayBuffer === 'undefined') {
+          console.warn('SharedArrayBuffer is not available. Some features might be affected.');
+      }
+    </script>
+    <script>
+      // Global error handling for the index.html entrypoint so the loading screen never hangs silently
+      (function () {
+        function hideLoadingScreen() {
+          var loading = document.getElementById('loading-screen');
+          if (loading) loading.style.display = 'none';
+        }
+        
+        function showFatalError(message) {
+          hideLoadingScreen();
+          var errorDiv = document.createElement('div');
+          errorDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #ff6600;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: "VT323", monospace;
+            font-size: 18px;
+            z-index: 9999;
+            max-width: 320px;
+            text-align: center;
+            border: 2px solid #ff6600;
+          `;
+          errorDiv.innerHTML = `
+            <div style="font-size:22px;margin-bottom:8px;">⚠️ Error</div>
+            <div style="margin-bottom:12px;">${message}</div>
+            <button style="
+              padding: 8px 16px;
+              background:#ff6600;
+              color:#000;
+              border:none;
+              border-radius:6px;
+              font-family:inherit;
+              font-size:16px;
+              cursor:pointer;
+            " onclick="location.reload()">Reload</button>
+          `;
+          document.body.appendChild(errorDiv);
+        }
+        
+        window.addEventListener('error', function (event) {
+          console.error('Global error (index.html):', event.error || event.message);
+          showFatalError('The game failed to load. Please reload the page.');
+        });
+        
+        window.addEventListener('unhandledrejection', function (event) {
+          const reason = event.reason;
+          const msg = (reason && (reason.message || (reason.toString && reason.toString()))) || '';
+
+          // If the rejection is just from exiting a lock early, ignore it completely.
+          if (msg && msg.toLowerCase().includes('exited the lock')) {
+            console.warn('Ignoring early lock exit rejection:', reason);
+            event.preventDefault();
+            return;
+          }
+
+          // For all other unhandled rejections, just log them and prevent default
+          // so they don't surface as breaking errors or overlays in the game.
+          console.warn('Unhandled promise rejection (index.html, non-fatal):', reason);
+          event.preventDefault();
+        });
+      })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+async setupSystems() {
+    // Living Hell Mode
+    this.livingHellMode = new LivingHellMode(this);
+
+    // Wave Manager for survival mode
+    this.waveManager = new WaveManager(this);
+
+    // Radio System
+    // this.radio = new RadioSystem();
+    // await this.radio.init();
+
+    // Fast travel & Inventory
+    this.setupMenus();
+
+    // NEW: Music controls
+    if (typeof this.setupMusicPlayer === 'function') {
+        this.setupMusicPlayer();
+    }
+
+    // Update stats UI
+    this.updateStatsUI();
+
+    // Hook Start Wave button to begin Survival Mode enemies
+    const startWaveBtn = document.getElementById('start-wave-btn');
+    if (startWaveBtn) {
+        startWaveBtn.style.display = 'block';
+        startWaveBtn.addEventListener('click', () => {
+            if (this.waveManager) {
+                this.waveManager.activate();
+            }
+        });
+    }
+}

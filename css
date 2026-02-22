@@ -1,0 +1,34 @@
+.chroma-awards-logo {
+    display: block;
+    max-width: 260px;
+    width: 60vw;
+    height: auto;
+    margin: 0 auto 16px auto;
+    image-rendering: crisp-edges;
+    filter:
+        invert(88%)
+        sepia(80%)
+        saturate(900%)
+        hue-rotate(10deg)
+        brightness(1.1)
+        contrast(1.1);
+    opacity: 0.95;
+}
++
++.uls-badge-logo {
++    display: block;
++    max-width: 320px;
++    width: 70vw;
++    height: auto;
++    margin: 0 auto 12px auto;
++    image-rendering: crisp-edges;
++    filter:
++        invert(88%)
++        sepia(80%)
++        saturate(900%)
++        hue-rotate(10deg)
++        brightness(1.1)
++        contrast(1.1);
++    opacity: 0.98;
++}
+
