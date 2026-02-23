@@ -1,8 +1,44 @@
 import * as THREE from 'three';
 import nipplejs from 'nipplejs';
 import { LivingHellMode } from './living-hell-module.js';
-// import { RadioSystem } from './uls-radio-integration.js'; // Radio removed
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// Configuration: Game Balance & constants
+const CONFIG = {
+    PLAYER: {
+        BASE_SPEED: 5,
+        JUMP_VELOCITY: 8,
+        GRAVITY: 20
+    },
+    COMBAT: {
+        GUN_BASE_DAMAGE: 40,
+        GUN_DAMAGE_SCALE_PER_LEVEL: 0.2, // +20% per level
+        BULLET_SPEED: 60,
+        BULLET_LIFETIME: 3,
+        RECOIL: { Y: 0.06, Z: 0.04 }
+    },
+    ECONOMY: {
+        UPGRADE_BASE_COST: 250,
+        UPGRADE_COST_EXPONENT: 2, // cost doubles each level
+        MONEY_PER_KILL: 25,
+        MONEY_PER_BOSS_KILL: 75,
+        SCORE_PER_KILL: 100,
+        SCORE_PER_BOSS_KILL: 300
+    },
+    WAVES: {
+        SPAWN_RADIUS_MIN: 50,
+        SPAWN_RADIUS_MAX: 220,
+        SPAWN_RADIUS_GROWTH: 30,
+        ENEMY_HEALTH_BASE: 30,
+        ENEMY_HEALTH_GROWTH: 8,
+        BOSS_HEALTH_BASE: 140,
+        BOSS_HEALTH_GROWTH: 40,
+        ENEMY_DAMAGE_BASE: 4,
+        ENEMY_DAMAGE_GROWTH: 1.0,
+        BOSS_DAMAGE_BASE: 8,
+        BOSS_DAMAGE_GROWTH: 1.5
+    }
+};
 
 // Simple WaveManager stub to prevent runtime errors and show basic Survival HUD
 class WaveManager {
@@ -73,7 +109,7 @@ class WaveManager {
             // pays exactly the cost of the NEXT weapon upgrade level.
             if (isBossWave && this.game && this.game.stats) {
                 const nextLevel = (this.game.stats.gunLevel || 1) + 1;
-                const bossRunReward = 250 * Math.pow(2, nextLevel - 1); // matches Cost_n
+                const bossRunReward = CONFIG.ECONOMY.UPGRADE_BASE_COST * Math.pow(CONFIG.ECONOMY.UPGRADE_COST_EXPONENT, nextLevel - 1);
                 this.game.stats.money += bossRunReward;
 
                 if (typeof this.game.updateStatsUI === 'function') {
@@ -86,6 +122,8 @@ class WaveManager {
                     waveAnnouncement.classList.add('active');
                     setTimeout(() => waveAnnouncement.classList.remove('active'), 2500);
                 }
+
+                this.game.saveGame();
 
                 // After each boss, stop Survival Mode and return to downtime.
                 this.active = false;
@@ -107,6 +145,8 @@ class WaveManager {
                 waveAnnouncement.classList.add('active');
                 setTimeout(() => waveAnnouncement.classList.remove('active'), 1200);
             }
+
+            this.game.saveGame();
 
             // Continue automatically to the next wave if we are not on a boss wave.
             if (!isBossWave) {
@@ -341,7 +381,7 @@ class UrbanLifeSimulator {
         };
 
         // NEW: power-up / movement modifiers
-        this.baseMoveSpeed = 5;
+        this.baseMoveSpeed = CONFIG.PLAYER.BASE_SPEED;
         this.activeModifiers = this.activeModifiers || {};
         this.activeModifiers.speedBoostTime = 0; // seconds of temporary speed boost
 
@@ -373,7 +413,7 @@ class UrbanLifeSimulator {
         };
 
         // NEW: base damage per bullet and multiplier by level
-        this.gunBaseDamage = 40;
+        this.gunBaseDamage = CONFIG.COMBAT.GUN_BASE_DAMAGE;
         this.gunDamageMultiplier = 1.0;
 
         // NEW: road / sidewalk / street light collections
@@ -1885,6 +1925,7 @@ class UrbanLifeSimulator {
         }
         this.toggleFastTravel();
         this.checkLivingHellZone();
+        this.saveGame();
     }
 
     checkInteraction() {
@@ -1971,6 +2012,7 @@ class UrbanLifeSimulator {
             }
             this.updateInventoryUI();
             this.updateStatsUI();
+            this.saveGame();
         }
     }
 
@@ -2179,8 +2221,8 @@ class UrbanLifeSimulator {
         }
 
         // Apply simple recoil
-        this.recoil.y += 0.06;
-        this.recoil.z += 0.04;
+        this.recoil.y += CONFIG.COMBAT.RECOIL.Y;
+        this.recoil.z += CONFIG.COMBAT.RECOIL.Z;
 
         // Create a projectile starting at the camera
         const direction = new THREE.Vector3();
@@ -2197,8 +2239,8 @@ class UrbanLifeSimulator {
         projectile.position.copy(startPos);
 
         // Fast bullet speed; actual behavior handled in updateProjectiles()
-        projectile.velocity = direction.multiplyScalar(60);
-        projectile.userData.life = 3; // seconds until auto-despawn
+        projectile.velocity = direction.multiplyScalar(CONFIG.COMBAT.BULLET_SPEED);
+        projectile.userData.life = CONFIG.COMBAT.BULLET_LIFETIME;
         projectile.userData.damage = this.gunBaseDamage * this.gunDamageMultiplier;
 
         this.scene.add(projectile);
@@ -2357,7 +2399,7 @@ class UrbanLifeSimulator {
 
             // Apply restoration: set weapon upgrade level and recompute damage multiplier
             this.stats.gunLevel = level;
-            this.gunDamageMultiplier = 1 + (this.stats.gunLevel - 1) * 0.2;
+            this.gunDamageMultiplier = 1 + (this.stats.gunLevel - 1) * CONFIG.COMBAT.GUN_DAMAGE_SCALE_PER_LEVEL;
             this.updateStatsUI();
 
             // OPTIONAL: if you have a GameManager or persistent storage layer,
@@ -2373,9 +2415,8 @@ class UrbanLifeSimulator {
 
     // NEW: compute gun upgrade cost (scales per level)
     getGunUpgradeCost() {
-        // Exponential cost: Cost_n = 250 * 2^(n-1)
         const n = this.stats.gunLevel + 1; // next level we are upgrading to
-        return 250 * Math.pow(2, n - 1);
+        return CONFIG.ECONOMY.UPGRADE_BASE_COST * Math.pow(CONFIG.ECONOMY.UPGRADE_COST_EXPONENT, n - 1);
     }
 
     // NEW: helper to check if player is near any teleport portal (fast travel marker)
@@ -2420,13 +2461,14 @@ class UrbanLifeSimulator {
         this.stats.gunLevel += 1;
 
         // Each level adds 20% damage
-        this.gunDamageMultiplier = 1 + (this.stats.gunLevel - 1) * 0.2;
+        this.gunDamageMultiplier = 1 + (this.stats.gunLevel - 1) * CONFIG.COMBAT.GUN_DAMAGE_SCALE_PER_LEVEL;
 
         // Add ticker notification
         this.addTickerMessage(`GUN UPGRADED TO LEVEL ${this.stats.gunLevel}!`);
 
         // Refresh HUD to reflect new money and level
         this.updateStatsUI();
+        this.saveGame();
     }
 
     // NEW: spawn basic enemies for survival waves
@@ -2440,9 +2482,9 @@ class UrbanLifeSimulator {
         // Spawn enemies closer on early waves, then progressively farther out
         // so Wave 1 feels immediate and later waves come from the edges of the city.
         const currentWave = this.waveManager ? (this.waveManager.waveNumber || 1) : 1;
-        const minRadius = 50;   // Wave 1 roughly one city block away
-        const growthPerWave = 30;
-        const maxRadius = 220;  // Do not push spawns endlessly far away
+        const minRadius = CONFIG.WAVES.SPAWN_RADIUS_MIN;
+        const growthPerWave = CONFIG.WAVES.SPAWN_RADIUS_GROWTH;
+        const maxRadius = CONFIG.WAVES.SPAWN_RADIUS_MAX;
         const radius = Math.min(maxRadius, minRadius + (currentWave - 1) * growthPerWave);
 
         for (let i = 0; i < count; i++) {
@@ -2488,12 +2530,12 @@ class UrbanLifeSimulator {
 
             // Progressive difficulty: health & damage scale with wave number,
             // but start low so early waves feel easy.
-            const baseHealth = isBoss ? 140 : 30;              // easier starting health
-            const healthPerWave = isBoss ? 40 : 8;             // how much extra each wave
+            const baseHealth = isBoss ? CONFIG.WAVES.BOSS_HEALTH_BASE : CONFIG.WAVES.ENEMY_HEALTH_BASE;
+            const healthPerWave = isBoss ? CONFIG.WAVES.BOSS_HEALTH_GROWTH : CONFIG.WAVES.ENEMY_HEALTH_GROWTH;
             const enemyHealth = baseHealth + (currentWave - 1) * healthPerWave;
 
-            const baseProjectileDamage = isBoss ? 8 : 4;       // softer early damage
-            const damagePerWave = isBoss ? 1.5 : 1.0;
+            const baseProjectileDamage = isBoss ? CONFIG.WAVES.BOSS_DAMAGE_BASE : CONFIG.WAVES.ENEMY_DAMAGE_BASE;
+            const damagePerWave = isBoss ? CONFIG.WAVES.BOSS_DAMAGE_GROWTH : CONFIG.WAVES.ENEMY_DAMAGE_GROWTH;
             const enemyProjectileDamage = baseProjectileDamage + (currentWave - 1) * damagePerWave;
 
             // Fire cooldown shortens with wave, clamped so they don't get absurd
@@ -2539,8 +2581,8 @@ class UrbanLifeSimulator {
                         if (idx !== -1) this.enemies.splice(idx, 1);
 
                         // NEW: scoring and cash reward for kills
-                        const scoreGain = enemy.isBoss ? 300 : 100;
-                        const moneyGain = enemy.isBoss ? 75 : 25;
+                        const scoreGain = enemy.isBoss ? CONFIG.ECONOMY.SCORE_PER_BOSS_KILL : CONFIG.ECONOMY.SCORE_PER_KILL;
+                        const moneyGain = enemy.isBoss ? CONFIG.ECONOMY.MONEY_PER_BOSS_KILL : CONFIG.ECONOMY.MONEY_PER_KILL;
                         this.stats.score = (this.stats.score || 0) + scoreGain;
                         this.stats.money = (this.stats.money || 0) + moneyGain;
                         
@@ -2631,7 +2673,7 @@ class UrbanLifeSimulator {
                 projectile.velocity = shootDir.multiplyScalar(15); // enemy bullet speed
                 projectile.userData.life = 4; // seconds before auto-despawn
                 // NEW: projectile damage now comes from progressive per-enemy setting
-                projectile.userData.damage = enemy.projectileDamage || (enemy.isBoss ? 12 : 6);
+                projectile.userData.damage = enemy.projectileDamage || (enemy.isBoss ? CONFIG.WAVES.BOSS_DAMAGE_BASE : CONFIG.WAVES.ENEMY_DAMAGE_BASE);
 
                 this.scene.add(projectile);
                 this.enemyProjectiles.push(projectile);
@@ -2763,7 +2805,7 @@ class UrbanLifeSimulator {
             const playerHitRadius = 1.0;
             if (p.position.distanceToSquared(this.camera.position) < playerHitRadius * playerHitRadius) {
                 // Use the damage set in spawnEnemies; keep a safe low default
-                this.playerTakeDamage(p.userData.damage || 6);
+                this.playerTakeDamage(p.userData.damage || CONFIG.WAVES.ENEMY_DAMAGE_BASE);
                 this.scene.remove(p);
                 this.enemyProjectiles.splice(i, 1);
                 continue;
@@ -3110,28 +3152,71 @@ class UrbanLifeSimulator {
         this.init();
     }
 
-    // Simple stub so initialization doesn't fail if no save system is implemented yet
-    loadGame() {
-        // In the future this can restore state from localStorage or a backend.
-        // For now, it intentionally does nothing and lets a fresh game start.
+    saveGame() {
+        const saveData = {
+            stats: this.stats,
+            currentLocation: this.currentLocation,
+            time: this.time,
+            inventory: Array.from(this.inventory.entries()), // Convert Map to Array for JSON
+            playerPosition: { x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z },
+            weather: this.weather
+        };
+        try {
+            localStorage.setItem('uls_saveData', JSON.stringify(saveData));
+            // console.log('Game Saved'); // Uncomment for debug
+        } catch (e) {
+            console.warn('Failed to save game:', e);
+        }
+    }
 
-        // Ensure survival HUD score/combo start from a clean state
+    loadGame() {
+        try {
+            const savedJson = localStorage.getItem('uls_saveData');
+            if (savedJson) {
+                const savedData = JSON.parse(savedJson);
+
+                // Restore stats
+                this.stats = { ...this.stats, ...savedData.stats };
+
+                // Restore location and time
+                this.currentLocation = savedData.currentLocation || 'Downtown';
+                this.time = savedData.time || 720;
+                this.weather = savedData.weather || 'clear';
+
+                // Restore inventory
+                if (savedData.inventory) {
+                    this.inventory = new Map(savedData.inventory);
+                    this.updateInventoryUI();
+                }
+
+                // Restore position if valid
+                if (savedData.playerPosition) {
+                    this.camera.position.set(
+                        savedData.playerPosition.x,
+                        savedData.playerPosition.y,
+                        savedData.playerPosition.z
+                    );
+                }
+
+                // Restore Gun Damage Multiplier based on loaded level
+                this.gunDamageMultiplier = 1 + (this.stats.gunLevel - 1) * CONFIG.COMBAT.GUN_DAMAGE_SCALE_PER_LEVEL;
+
+                console.log('Game Loaded from LocalStorage');
+            }
+        } catch (e) {
+            console.warn('Failed to load game:', e);
+        }
+
+        // Ensure survival HUD score/combo start from a clean state (these reset per session usually, but we loaded them if they were in stats)
         this.stats.score = this.stats.score || 0;
         this.stats.combo = this.stats.combo || 1;
         this.stats.bestCombo = this.stats.bestCombo || 1;
         this.lastKillTime = 0;
+
         this.updateStatsUI();
 
-        // PSEUDOCODE / INTEGRATION POINT:
-        // If you add a main menu with a text input for progress codes, you can hook it like this:
-        // const inputCode = menuInput.value;
-        // const restoredLevel = this.redeemProgressCode(inputCode);
-        // if (restoredLevel != null) {
-        //     // Grant all cumulative benefits up to restoredLevel (already reflected in gunDamageMultiplier)
-        //     console.log('Progress restored to weapon level', restoredLevel);
-        // } else {
-        //     console.log('Invalid Progress Code. Try again.');
-        // }
+        // Check if we loaded into a Living Hell zone
+        this.checkLivingHellZone();
     }
 
     // NEW: handle walking through power-up orbs
@@ -3199,6 +3284,7 @@ class UrbanLifeSimulator {
         }
         this.updateStatsUI();
         this.playSound('use_item');
+        this.saveGame();
     }
 
     start() {
