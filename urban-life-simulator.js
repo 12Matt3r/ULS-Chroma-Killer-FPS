@@ -19,9 +19,10 @@ const CONFIG = {
     },
     ECONOMY: {
         UPGRADE_BASE_COST: 250,
-        UPGRADE_COST_EXPONENT: 2, // cost doubles each level
-        MONEY_PER_KILL: 25,
-        MONEY_PER_BOSS_KILL: 75,
+        UPGRADE_COST_EXPONENT: 1.5, // cost increases by 50% each level instead of doubling
+        MONEY_PER_KILL: 35,
+        MONEY_PER_BOSS_KILL: 150,
+        MONEY_PER_WAVE_CLEAR: 100,
         SCORE_PER_KILL: 100,
         SCORE_PER_BOSS_KILL: 300
     },
@@ -29,11 +30,11 @@ const CONFIG = {
         SPAWN_RADIUS_MIN: 50,
         SPAWN_RADIUS_MAX: 220,
         SPAWN_RADIUS_GROWTH: 30,
-        ENEMY_HEALTH_BASE: 30,
+        ENEMY_HEALTH_BASE: 20, // Easier start (was 30)
         ENEMY_HEALTH_GROWTH: 8,
-        BOSS_HEALTH_BASE: 140,
+        BOSS_HEALTH_BASE: 120, // Slightly easier boss (was 140)
         BOSS_HEALTH_GROWTH: 40,
-        ENEMY_DAMAGE_BASE: 4,
+        ENEMY_DAMAGE_BASE: 3, // Less punishment (was 4)
         ENEMY_DAMAGE_GROWTH: 1.0,
         BOSS_DAMAGE_BASE: 8,
         BOSS_DAMAGE_GROWTH: 1.5
@@ -139,11 +140,21 @@ class WaveManager {
                 return;
             }
 
-            // Non-boss waves: no direct money reward; they are just steps in the boss run.
-            if (!isBossWave && waveAnnouncement) {
-                waveAnnouncement.textContent = `WAVE ${this.waveNumber} CLEARED`;
-                waveAnnouncement.classList.add('active');
-                setTimeout(() => waveAnnouncement.classList.remove('active'), 1200);
+            // Non-boss waves: Give smaller money reward to keep economy flowing
+            if (!isBossWave) {
+                // Award money for clearing a normal wave
+                const waveReward = CONFIG.ECONOMY.MONEY_PER_WAVE_CLEAR + (this.waveNumber * 10);
+                this.game.stats.money += waveReward;
+
+                if (typeof this.game.updateStatsUI === 'function') {
+                    this.game.updateStatsUI();
+                }
+
+                if (waveAnnouncement) {
+                    waveAnnouncement.textContent = `WAVE ${this.waveNumber} CLEARED — +$${waveReward}`;
+                    waveAnnouncement.classList.add('active');
+                    setTimeout(() => waveAnnouncement.classList.remove('active'), 1500);
+                }
             }
 
             this.game.saveGame();
@@ -306,7 +317,8 @@ class UrbanLifeSimulator {
         this.powerupTextures = {
             health: null, // water bottle
             energy: null, // energy drink
-            hunger: null  // food can
+            hunger: null, // food can
+            money: null   // treasure chest / loot crate
         };
 
         // Locations
@@ -687,6 +699,18 @@ class UrbanLifeSimulator {
                     resolve(tex);
                 }, undefined, (err) => {
                     console.error('Error loading food_can.png', err);
+                    resolve(null);
+                });
+            }),
+            new Promise(resolve => {
+                // Try to load a crate/chest texture, fallback to simple color if missing
+                this.textureLoader.load('loot_crate.png', (tex) => {
+                    tex.colorSpace = THREE.SRGBColorSpace || THREE.sRGBEncoding;
+                    tex.needsUpdate = true;
+                    this.powerupTextures.money = tex;
+                    resolve(tex);
+                }, undefined, (err) => {
+                    // Not an error, just means we use the fallback geometry color
                     resolve(null);
                 });
             })
@@ -1238,56 +1262,62 @@ class UrbanLifeSimulator {
         });
     }
 
+    // Refactored helper to create item mesh
+    createItemOrb(itemData) {
+        const texture = this.powerupTextures[itemData.powerType];
+        let orb;
+
+        if (texture) {
+            const geometry = new THREE.PlaneGeometry(1, 1);
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+            });
+            orb = new THREE.Mesh(geometry, material);
+        } else {
+            // Fallback: simple glowing sphere if texture missing
+            const geometry = new THREE.SphereGeometry(0.5, 16, 16);
+            const material = new THREE.MeshStandardMaterial({
+                color: itemData.color,
+                emissive: itemData.color,
+                emissiveIntensity: 1.5,
+                transparent: true,
+                opacity: 0.9
+            });
+            orb = new THREE.Mesh(geometry, material);
+        }
+
+        orb.castShadow = true;
+        orb.userData = {
+            isPowerup: true,
+            powerType: itemData.powerType,
+            name: itemData.name
+        };
+
+        return orb;
+    }
+
     spawnItems() {
         const itemTypes = [
             { name: 'Health Core', powerType: 'health', color: 0x00ff66 },
             { name: 'Energy Surge', powerType: 'energy', color: 0x66ccff },
             { name: 'Ration Cache', powerType: 'hunger', color: 0xffff66 },
+            { name: 'Loot Crate', powerType: 'money', color: 0xffd700 } // Gold color for money
         ];
 
-        // FEWER power-ups: small count scattered around the map
-        const totalPowerups = 6;
+        // INCREASED power-ups: more loot to find around the map
+        const totalPowerups = 14;
 
         for (let i = 0; i < totalPowerups; i++) {
             const itemData = itemTypes[i % itemTypes.length];
-
-            // Try to use PNG icon as a billboarded plane
-            const texture = this.powerupTextures[itemData.powerType];
-            let orb;
-
-            if (texture) {
-                const geometry = new THREE.PlaneGeometry(1, 1);
-                const material = new THREE.MeshBasicMaterial({
-                    map: texture,
-                    transparent: true,
-                    side: THREE.DoubleSide
-                });
-                orb = new THREE.Mesh(geometry, material);
-            } else {
-                // Fallback: simple glowing sphere if texture missing
-                const geometry = new THREE.SphereGeometry(0.5, 16, 16);
-                const material = new THREE.MeshStandardMaterial({
-                    color: itemData.color,
-                    emissive: itemData.color,
-                    emissiveIntensity: 1.5,
-                    transparent: true,
-                    opacity: 0.9
-                });
-                orb = new THREE.Mesh(geometry, material);
-            }
-
-            orb.castShadow = true;
+            const orb = this.createItemOrb(itemData);
 
             orb.position.set(
                 (Math.random() - 0.5) * 150,
                 0.75,
                 (Math.random() - 0.5) * 150
             );
-            orb.userData = {
-                isPowerup: true,
-                powerType: itemData.powerType,
-                name: itemData.name
-            };
 
             this.scene.add(orb);
             this.itemObjects.push(orb);
@@ -2041,6 +2071,9 @@ class UrbanLifeSimulator {
             case 'energy':
                 anchorEl = this.ui.energyValue;
                 break;
+            case 'money':
+                anchorEl = this.ui.moneyValue;
+                break;
             default:
                 anchorEl = this.ui.statusUI || document.getElementById('status-ui');
                 break;
@@ -2197,8 +2230,33 @@ class UrbanLifeSimulator {
     fireWeapon() {
         if (!this.scene || !this.camera) return;
 
-        // Play gunshot audio
-        this.playSound('gunshot');
+        // Play gunshot audio with slight pitch shift based on level to feel stronger
+        if (this.audioContext && this.sounds.has('gunshot')) {
+            const buffer = this.sounds.get('gunshot');
+            if (buffer) {
+                const now = this.audioContext.currentTime;
+                // Simple cooldown check locally if playSound isn't used
+                const last = this.soundLastPlayed['gunshot'] || 0;
+                const cfg = this.soundConfig['gunshot'] || { volume: 1, minInterval: 0.07 };
+
+                if (now - last >= cfg.minInterval) {
+                    this.soundLastPlayed['gunshot'] = now;
+                    const source = this.audioContext.createBufferSource();
+                    source.buffer = buffer;
+
+                    // Pitch shift up slightly per level (capped)
+                    const level = this.stats.gunLevel || 1;
+                    const pitchMod = Math.min(0.3, (level - 1) * 0.02);
+                    source.playbackRate.value = 1.0 + pitchMod + (Math.random() * 0.08 - 0.04);
+
+                    const gainNode = this.audioContext.createGain();
+                    gainNode.gain.value = cfg.volume;
+
+                    source.connect(gainNode).connect(this.audioContext.destination);
+                    source.start(0);
+                }
+            }
+        }
 
         // Crosshair fire feedback
         if (this.ui.crosshair) {
@@ -2234,7 +2292,16 @@ class UrbanLifeSimulator {
         startPos.addScaledVector(direction, 0.6);
 
         const geometry = new THREE.SphereGeometry(0.06, 8, 8);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffee99 });
+
+        // Determine projectile color based on gun level
+        let bulletColor = 0xffee99; // Default yellow
+        const level = this.stats.gunLevel || 1;
+        if (level >= 2 && level < 4) bulletColor = 0xffaa00; // Orange
+        else if (level >= 4 && level < 7) bulletColor = 0xff4444; // Red
+        else if (level >= 7 && level < 10) bulletColor = 0x00ffff; // Cyan
+        else if (level >= 10) bulletColor = 0xff00ff; // Purple
+
+        const material = new THREE.MeshBasicMaterial({ color: bulletColor });
         const projectile = new THREE.Mesh(geometry, material);
         projectile.position.copy(startPos);
 
@@ -2263,6 +2330,28 @@ class UrbanLifeSimulator {
 
         if (this.inLivingHellZone && !wasInZone) {
             this.livingHellMode.activate();
+
+            // "Utilized better": immediately spawn extra loot to reward entering the zone
+            // Fix: 'this' IS the game instance in UrbanLifeSimulator class, so we call methods directly
+            if (typeof this.createItemOrb === 'function') {
+                // Spawn a few extra chests nearby to encourage exploration
+                for (let i = 0; i < 3; i++) {
+                    const itemData = { name: 'Loot Crate', powerType: 'money', color: 0xffd700 };
+                    const orb = this.createItemOrb(itemData); // Helper refactor needed or duplicate logic
+                    if (orb) {
+                        // Spawn near player but randomized
+                        orb.position.set(
+                            this.camera.position.x + (Math.random() - 0.5) * 40,
+                            0.75,
+                            this.camera.position.z + (Math.random() - 0.5) * 40
+                        );
+                        this.scene.add(orb);
+                        this.itemObjects.push(orb);
+                    }
+                }
+                this.addTickerMessage("THE HOUSE PROVIDES: EXTRA LOOT DETECTED");
+            }
+
         } else if (!this.inLivingHellZone && wasInZone) {
             this.livingHellMode.deactivate();
         }
@@ -3277,6 +3366,12 @@ class UrbanLifeSimulator {
                 this.stats.hunger = Math.min(100, this.stats.hunger + 40);
                 this.showStatChange('hunger', +40);
                 notificationText = 'HUNGER SATISFIED +40';
+                break;
+            case 'money':
+                const amount = Math.floor(50 + Math.random() * 200);
+                this.stats.money += amount;
+                this.showStatChange('money', +amount);
+                notificationText = `LOOT CRATE FOUND: +$${amount}`;
                 break;
         }
         if (notificationText) {
