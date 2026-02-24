@@ -11,11 +11,44 @@ const CONFIG = {
         GRAVITY: 20
     },
     COMBAT: {
-        GUN_BASE_DAMAGE: 40,
-        GUN_DAMAGE_SCALE_PER_LEVEL: 0.2, // +20% per level
+        // Base stats now managed by WeaponSystem, these are multipliers/globals
+        GUN_DAMAGE_SCALE_PER_LEVEL: 0.15, // +15% per level (balanced for multi-gun)
         BULLET_SPEED: 60,
         BULLET_LIFETIME: 3,
-        RECOIL: { Y: 0.06, Z: 0.04 }
+        RECOIL_RECOVERY: 0.2
+    },
+    WEAPONS: {
+        PISTOL: {
+            name: 'Viper Mk.I',
+            damage: 25,
+            fireRate: 0.25, // seconds between shots
+            spread: 0.02,
+            magSize: 12,
+            reloadTime: 1.5,
+            recoil: { y: 0.04, z: 0.02 },
+            color: 0xffee99
+        },
+        SHOTGUN: {
+            name: 'Street Sweeper',
+            damage: 18, // per pellet
+            pellets: 6,
+            fireRate: 0.9,
+            spread: 0.15,
+            magSize: 6,
+            reloadTime: 2.5,
+            recoil: { y: 0.15, z: 0.1 },
+            color: 0xffaa00
+        },
+        SMG: {
+            name: 'Neon Uzi',
+            damage: 14,
+            fireRate: 0.09,
+            spread: 0.06,
+            magSize: 30,
+            reloadTime: 1.8,
+            recoil: { y: 0.03, z: 0.01 },
+            color: 0x00ffff
+        }
     },
     ECONOMY: {
         UPGRADE_BASE_COST: 250,
@@ -40,6 +73,181 @@ const CONFIG = {
         BOSS_DAMAGE_GROWTH: 1.5
     }
 };
+
+class FloatingTextManager {
+    constructor() {
+        this.texts = [];
+        this.container = document.createElement('div');
+        this.container.id = 'floating-text-container';
+        this.container.style.position = 'absolute';
+        this.container.style.top = '0';
+        this.container.style.left = '0';
+        this.container.style.width = '100%';
+        this.container.style.height = '100%';
+        this.container.style.pointerEvents = 'none';
+        this.container.style.overflow = 'hidden';
+        this.container.style.zIndex = '80'; // Above world, below UI
+
+        // Append to game container if possible, else body
+        const gameContainer = document.getElementById('game-container') || document.body;
+        gameContainer.appendChild(this.container);
+    }
+
+    // Spawns a number at a 3D world position
+    spawn(position, text, color = '#ffffff') {
+        const el = document.createElement('div');
+        el.textContent = text;
+        el.style.position = 'absolute';
+        el.style.color = color;
+        el.style.fontFamily = "'VT323', monospace";
+        el.style.fontSize = '24px';
+        el.style.textShadow = '0 0 4px rgba(0,0,0,0.8)';
+        el.style.fontWeight = 'bold';
+        el.style.whiteSpace = 'nowrap';
+        el.style.willChange = 'transform, opacity';
+
+        this.container.appendChild(el);
+
+        this.texts.push({
+            el: el,
+            position: position.clone(),
+            life: 1.0, // seconds
+            offsetY: 0
+        });
+    }
+
+    update(camera) {
+        // reuse vector to project to screen
+        const vec = new THREE.Vector3();
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const widthHalf = width / 2;
+        const heightHalf = height / 2;
+
+        for (let i = this.texts.length - 1; i >= 0; i--) {
+            const item = this.texts[i];
+            item.life -= 0.016; // approximate delta
+            item.offsetY += 0.03; // float up speed
+
+            if (item.life <= 0) {
+                item.el.remove();
+                this.texts.splice(i, 1);
+                continue;
+            }
+
+            // Project 3D position to 2D screen
+            vec.copy(item.position);
+            vec.y += 1.5 + item.offsetY; // Start above head + float
+
+            vec.project(camera);
+
+            // Check if behind camera
+            if (vec.z > 1) {
+                item.el.style.display = 'none';
+                continue;
+            } else {
+                item.el.style.display = 'block';
+            }
+
+            const x = (vec.x * widthHalf) + widthHalf;
+            const y = -(vec.y * heightHalf) + heightHalf;
+
+            item.el.style.transform = `translate(${x}px, ${y}px)`;
+            item.el.style.opacity = Math.min(1, item.life * 2);
+        }
+    }
+}
+
+class WeaponSystem {
+    constructor(game) {
+        this.game = game;
+        this.currentWeaponIndex = 0;
+        this.weapons = [
+            { ...CONFIG.WEAPONS.PISTOL, currentMag: CONFIG.WEAPONS.PISTOL.magSize },
+            { ...CONFIG.WEAPONS.SHOTGUN, currentMag: CONFIG.WEAPONS.SHOTGUN.magSize },
+            { ...CONFIG.WEAPONS.SMG, currentMag: CONFIG.WEAPONS.SMG.magSize }
+        ];
+
+        this.isReloading = false;
+        this.lastShotTime = 0;
+        this.reloadEndTime = 0;
+    }
+
+    getCurrent() {
+        return this.weapons[this.currentWeaponIndex];
+    }
+
+    switchWeapon(index) {
+        if (this.isReloading || index < 0 || index >= this.weapons.length || index === this.currentWeaponIndex) return;
+        this.currentWeaponIndex = index;
+
+        // Visual feedback or sound could go here
+        const weaponName = this.getCurrent().name;
+        if (this.game) this.game.addTickerMessage(`EQUIPPED: ${weaponName}`);
+        this.updateUI();
+    }
+
+    canFire(now) {
+        const weapon = this.getCurrent();
+        return !this.isReloading &&
+               weapon.currentMag > 0 &&
+               (now - this.lastShotTime >= weapon.fireRate);
+    }
+
+    fire(now) {
+        if (!this.canFire(now)) {
+            if (!this.isReloading && this.getCurrent().currentMag <= 0) {
+                this.startReload(now);
+            }
+            return false;
+        }
+
+        this.getCurrent().currentMag--;
+        this.lastShotTime = now;
+        this.updateUI();
+
+        if (this.getCurrent().currentMag <= 0) {
+            this.startReload(now); // Auto reload on empty
+        }
+        return true;
+    }
+
+    startReload(now) {
+        if (this.isReloading) return;
+
+        this.isReloading = true;
+        const duration = this.getCurrent().reloadTime;
+        this.reloadEndTime = now + duration;
+
+        // Show reload UI
+        if (this.game) this.game.addTickerMessage("RELOADING...");
+        this.updateUI();
+
+        // Schedule finish
+        setTimeout(() => this.finishReload(), duration * 1000);
+    }
+
+    finishReload() {
+        if (!this.isReloading) return;
+
+        this.isReloading = false;
+        const weapon = this.getCurrent();
+        weapon.currentMag = weapon.magSize;
+        this.updateUI();
+    }
+
+    updateUI() {
+        // We need to add HTML elements for this or use existing stats UI
+        const weapon = this.getCurrent();
+        const ammoText = this.isReloading ? "RELOAD" : `${weapon.currentMag} / ∞`;
+
+        // Assuming we'll add a weapon-info div or reuse gunUpgradeInfo
+        const infoDiv = document.getElementById('weapon-hud-display');
+        if (infoDiv) {
+            infoDiv.textContent = `${weapon.name} [${ammoText}]`;
+        }
+    }
+}
 
 // Simple WaveManager stub to prevent runtime errors and show basic Survival HUD
 class WaveManager {
@@ -275,6 +483,12 @@ class UrbanLifeSimulator {
         this.livingHellMode = null;
         this.inLivingHellZone = false;
 
+        // Weapon System
+        this.weaponSystem = new WeaponSystem(this);
+
+        // Floating Text Manager
+        this.floatingTextManager = new FloatingTextManager();
+
         // Texture Loader
         this.textureLoader = null;
 
@@ -449,6 +663,26 @@ class UrbanLifeSimulator {
         // Sky eye spotlight tracking
         this.enemySpotlights = [];
         this.skyEyePosition = new THREE.Vector3(0, 80, -80);
+
+        // Minimap
+        this.minimapCanvas = document.createElement('canvas');
+        this.minimapCanvas.width = 150;
+        this.minimapCanvas.height = 150;
+        this.minimapCanvas.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border: 2px solid #ff6600;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.8);
+            z-index: 90;
+            display: none; /* Hidden until loaded */
+        `;
+        this.minimapCtx = this.minimapCanvas.getContext('2d');
+        document.getElementById('game-container').appendChild(this.minimapCanvas);
+
+        // Footstep timer
+        this.lastFootstepTime = 0;
 
         this.init();
     }
@@ -1716,7 +1950,22 @@ class UrbanLifeSimulator {
             this.streetLights.push({
                 poleMesh: pole,
                 bulbMesh: bulb,
-                light
+                light,
+                health: 20, // Hit points for destruction
+                isBroken: false,
+                takeDamage: function(amount) {
+                    if (this.isBroken) return;
+                    this.health -= amount;
+                    if (this.health <= 0) {
+                        this.isBroken = true;
+                        this.light.intensity = 0;
+                        this.bulbMesh.material.emissiveIntensity = 0;
+                        this.bulbMesh.material.color.setHex(0x111111);
+
+                        // Particle effect for breaking
+                        // (Ideally we call a particle manager here, but we can just toggle off for now)
+                    }
+                }
             });
         });
 
@@ -1787,6 +2036,10 @@ class UrbanLifeSimulator {
                 case 'KeyI': this.toggleInventory(); break; // Inventory stub
                 case 'KeyF': this.enterVehicle(); break; // Vehicle stub
                 case 'KeyG': this.toggleSurvivalMode(); break; // Toggle Survival Mode
+                case 'Digit1': if (this.weaponSystem) this.weaponSystem.switchWeapon(0); break;
+                case 'Digit2': if (this.weaponSystem) this.weaponSystem.switchWeapon(1); break;
+                case 'Digit3': if (this.weaponSystem) this.weaponSystem.switchWeapon(2); break;
+                case 'KeyR': if (this.weaponSystem) this.weaponSystem.startReload(this.clock.getElapsedTime()); break;
             }
         });
 
@@ -1903,6 +2156,9 @@ class UrbanLifeSimulator {
                 this.upgradeGun();
             });
         }
+
+        // Initialize weapon UI
+        this.weaponSystem.updateUI();
     }
 
     toggleSurvivalMode() {
@@ -2228,33 +2484,35 @@ class UrbanLifeSimulator {
 
     // NEW: primary firing logic used by desktop and mobile controls
     fireWeapon() {
-        if (!this.scene || !this.camera) return;
+        if (!this.scene || !this.camera || !this.weaponSystem) return;
 
-        // Play gunshot audio with slight pitch shift based on level to feel stronger
+        const now = this.clock.getElapsedTime();
+        if (!this.weaponSystem.fire(now)) return;
+
+        const currentWeapon = this.weaponSystem.getCurrent();
+
+        // Play gunshot audio
         if (this.audioContext && this.sounds.has('gunshot')) {
             const buffer = this.sounds.get('gunshot');
             if (buffer) {
-                const now = this.audioContext.currentTime;
-                // Simple cooldown check locally if playSound isn't used
-                const last = this.soundLastPlayed['gunshot'] || 0;
-                const cfg = this.soundConfig['gunshot'] || { volume: 1, minInterval: 0.07 };
+                const source = this.audioContext.createBufferSource();
+                source.buffer = buffer;
 
-                if (now - last >= cfg.minInterval) {
-                    this.soundLastPlayed['gunshot'] = now;
-                    const source = this.audioContext.createBufferSource();
-                    source.buffer = buffer;
+                // Pitch shift based on level AND weapon type
+                const level = this.stats.gunLevel || 1;
+                let basePitch = 1.0;
+                if (currentWeapon.name.includes('Sweeper')) basePitch = 0.8; // Shotgun lower
+                else if (currentWeapon.name.includes('Uzi')) basePitch = 1.2; // SMG higher
 
-                    // Pitch shift up slightly per level (capped)
-                    const level = this.stats.gunLevel || 1;
-                    const pitchMod = Math.min(0.3, (level - 1) * 0.02);
-                    source.playbackRate.value = 1.0 + pitchMod + (Math.random() * 0.08 - 0.04);
+                const pitchMod = Math.min(0.3, (level - 1) * 0.02);
+                source.playbackRate.value = basePitch + pitchMod + (Math.random() * 0.08 - 0.04);
 
-                    const gainNode = this.audioContext.createGain();
-                    gainNode.gain.value = cfg.volume;
+                const gainNode = this.audioContext.createGain();
+                // Lower volume slightly for fast fire weapons
+                gainNode.gain.value = (currentWeapon.fireRate < 0.15 ? 0.6 : 1.0);
 
-                    source.connect(gainNode).connect(this.audioContext.destination);
-                    source.start(0);
-                }
+                source.connect(gainNode).connect(this.audioContext.destination);
+                source.start(0);
             }
         }
 
@@ -2278,40 +2536,47 @@ class UrbanLifeSimulator {
             }, 60);
         }
 
-        // Apply simple recoil
-        this.recoil.y += CONFIG.COMBAT.RECOIL.Y;
-        this.recoil.z += CONFIG.COMBAT.RECOIL.Z;
+        // Apply recoil from config
+        this.recoil.y += currentWeapon.recoil.y;
+        this.recoil.z += currentWeapon.recoil.z;
 
-        // Create a projectile starting at the camera
-        const direction = new THREE.Vector3();
-        this.camera.getWorldDirection(direction);
-        direction.normalize();
+        // Create projectiles (loop for shotgun pellets)
+        const pelletCount = currentWeapon.pellets || 1;
+        const spreadFactor = currentWeapon.spread;
 
-        const startPos = this.camera.position.clone();
-        // Move a bit forward so it doesn't appear inside the camera
-        startPos.addScaledVector(direction, 0.6);
+        for (let i = 0; i < pelletCount; i++) {
+            const direction = new THREE.Vector3();
+            this.camera.getWorldDirection(direction);
 
-        const geometry = new THREE.SphereGeometry(0.06, 8, 8);
+            // Apply spread
+            if (spreadFactor > 0) {
+                direction.x += (Math.random() - 0.5) * spreadFactor;
+                direction.y += (Math.random() - 0.5) * spreadFactor;
+                direction.z += (Math.random() - 0.5) * spreadFactor;
+            }
+            direction.normalize();
 
-        // Determine projectile color based on gun level
-        let bulletColor = 0xffee99; // Default yellow
-        const level = this.stats.gunLevel || 1;
-        if (level >= 2 && level < 4) bulletColor = 0xffaa00; // Orange
-        else if (level >= 4 && level < 7) bulletColor = 0xff4444; // Red
-        else if (level >= 7 && level < 10) bulletColor = 0x00ffff; // Cyan
-        else if (level >= 10) bulletColor = 0xff00ff; // Purple
+            const startPos = this.camera.position.clone();
+            startPos.addScaledVector(direction, 0.6);
 
-        const material = new THREE.MeshBasicMaterial({ color: bulletColor });
-        const projectile = new THREE.Mesh(geometry, material);
-        projectile.position.copy(startPos);
+            const geometry = new THREE.SphereGeometry(0.05, 6, 6);
 
-        // Fast bullet speed; actual behavior handled in updateProjectiles()
-        projectile.velocity = direction.multiplyScalar(CONFIG.COMBAT.BULLET_SPEED);
-        projectile.userData.life = CONFIG.COMBAT.BULLET_LIFETIME;
-        projectile.userData.damage = this.gunBaseDamage * this.gunDamageMultiplier;
+            // Use weapon color directly or level color? Let's mix.
+            // Priority to weapon identity color, maybe tinted by level later.
+            const material = new THREE.MeshBasicMaterial({ color: currentWeapon.color || 0xffee99 });
+            const projectile = new THREE.Mesh(geometry, material);
+            projectile.position.copy(startPos);
 
-        this.scene.add(projectile);
-        this.projectiles.push(projectile);
+            projectile.velocity = direction.multiplyScalar(CONFIG.COMBAT.BULLET_SPEED);
+            projectile.userData.life = CONFIG.COMBAT.BULLET_LIFETIME;
+
+            // Damage calculation: Base Weapon Dmg * Level Multiplier
+            const dmg = currentWeapon.damage * this.gunDamageMultiplier;
+            projectile.userData.damage = dmg;
+
+            this.scene.add(projectile);
+            this.projectiles.push(projectile);
+        }
     }
 
     enterVehicle() {
@@ -2661,6 +2926,13 @@ class UrbanLifeSimulator {
                         }, 100);
                     }
 
+                    // Floating combat text
+                    if (this.floatingTextManager) {
+                        const color = enemy.health <= 0 ? '#ff0000' : '#ffffff';
+                        const text = enemy.health <= 0 ? 'KILL' : `-${Math.round(amount)}`;
+                        this.floatingTextManager.spawn(enemy.mesh.position, text, color);
+                    }
+
                     if (enemy.health <= 0) {
                         // Remove from scene and game enemy list
                         if (enemy.mesh && enemy.mesh.parent) {
@@ -2843,6 +3115,10 @@ class UrbanLifeSimulator {
             if (this.isProjectileBlocked(p.position)) {
                 this.createImpactEffect(p.position);
                 this.playSound('hit_impact');
+
+                // Check if we hit a destructible street light
+                this.checkDestructibleHit(p.position, p.userData.damage);
+
                 this.scene.remove(p);
                 this.projectiles.splice(i, 1);
                 continue;
@@ -2906,6 +3182,24 @@ class UrbanLifeSimulator {
                 this.enemyProjectiles.splice(i, 1);
             }
         }
+    }
+
+    checkDestructibleHit(position, damage) {
+        // Simple radius check against street lights
+        const hitRadius = 1.0;
+        this.streetLights.forEach(sl => {
+            if (sl.isBroken) return;
+            // Check distance to bulb (approx height)
+            if (sl.bulbMesh) {
+                const distSq = position.distanceToSquared(sl.bulbMesh.position);
+                if (distSq < hitRadius * hitRadius) {
+                    sl.takeDamage(damage || 10);
+                    if (this.floatingTextManager) {
+                        this.floatingTextManager.spawn(sl.bulbMesh.position, "CRACK", "#ffff00");
+                    }
+                }
+            }
+        });
     }
 
     createImpactEffect(position) {
@@ -3088,6 +3382,28 @@ class UrbanLifeSimulator {
         // Keep camera at standing height if not jumping
         if (!this.isJumping) {
             this.camera.position.y = 1.7;
+
+            // Footstep sounds
+            const isMoving = Math.abs(direction.x) > 0.1 || Math.abs(direction.z) > 0.1;
+            const now = this.clock.getElapsedTime();
+            // Faster steps if running
+            const stepInterval = (speed > 6) ? 0.35 : 0.55;
+
+            if (isMoving && now - this.lastFootstepTime > stepInterval) {
+                this.lastFootstepTime = now;
+                // Play a very subtle noise burst for footstep
+                if (this.audioContext) {
+                    const osc = this.audioContext.createOscillator();
+                    const gain = this.audioContext.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(50 + Math.random()*20, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    osc.connect(gain).connect(this.audioContext.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                }
+            }
         }
 
         // Check location
@@ -3418,7 +3734,88 @@ class UrbanLifeSimulator {
                 this.livingHellMode.update(delta);
             }
 
+            if (this.floatingTextManager) {
+                this.floatingTextManager.update(this.camera);
+            }
+
+            this.updateMinimap();
+
             this.renderer.render(this.scene, this.camera);
+        });
+    }
+
+    updateMinimap() {
+        if (!this.minimapCtx || !this.camera) return;
+
+        // Show only if game has started
+        if (this.minimapCanvas.style.display === 'none' && !this.ui.loadingScreen.style.display) {
+            this.minimapCanvas.style.display = 'block';
+        }
+
+        const ctx = this.minimapCtx;
+        const size = this.minimapCanvas.width;
+        const radius = size / 2;
+        const scale = 0.5; // Minimap zoom
+
+        // Clear
+        ctx.clearRect(0, 0, size, size);
+
+        // Radar background
+        ctx.fillStyle = 'rgba(0, 20, 10, 0.5)';
+        ctx.beginPath();
+        ctx.arc(radius, radius, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Player (Center)
+        ctx.fillStyle = '#00ff00';
+        ctx.beginPath();
+        ctx.arc(radius, radius, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Camera direction cone
+        const dir = new THREE.Vector3();
+        this.camera.getWorldDirection(dir);
+        const angle = Math.atan2(dir.x, dir.z);
+
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.lineTo(radius + Math.sin(angle - 0.4) * 40, radius - Math.cos(angle - 0.4) * 40);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.lineTo(radius + Math.sin(angle + 0.4) * 40, radius - Math.cos(angle + 0.4) * 40);
+        ctx.stroke();
+
+        // Enemies
+        ctx.fillStyle = '#ff0000';
+        this.enemies.forEach(enemy => {
+            if (!enemy.mesh) return;
+            const dx = (enemy.mesh.position.x - this.camera.position.x) * scale;
+            const dz = (enemy.mesh.position.z - this.camera.position.z) * scale;
+
+            // Draw if within range
+            if (dx*dx + dz*dz < radius*radius) {
+                // In canvas, y is down, but 3D z is forward/back.
+                // We map 3D X -> Canvas X, 3D Z -> Canvas Y (inverted typically, but relative works)
+                ctx.beginPath();
+                ctx.arc(radius + dx, radius + dz, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        // Loot
+        ctx.fillStyle = '#ffd700';
+        this.itemObjects.forEach(item => {
+            const dx = (item.position.x - this.camera.position.x) * scale;
+            const dz = (item.position.z - this.camera.position.z) * scale;
+
+            if (dx*dx + dz*dz < radius*radius) {
+                ctx.beginPath();
+                ctx.arc(radius + dx, radius + dz, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
         });
     }
 }
